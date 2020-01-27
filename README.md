@@ -15,10 +15,15 @@ Things to consider:
 - [ ] deployment/operation of Redis + the service
 
 TODO:
-- [ ] basic web service
-- [ ] go server
-- [ ] middleware
+- [ ] pull path from request
 - [ ] benhhmark to demonstrate limiting (wrk?)
+
+Gotchas
+=====
+- If the service can't reach Redis it 500s back to the user.
+- It requires two calls to Redis, one to check the number of requests
+  this minute and one to increment that value. This could be reduced
+  to one by doing the call to increment the value in parallel.
 
 Development
 =========
@@ -52,4 +57,4 @@ Development
     http :8080/test1
     http :8081/test1
 
-And you should see a 429 be returned!
+And you should get back a 429
