@@ -9,8 +9,15 @@ This is coordinated through Redis. The first version uses the rate
 limiter pattern #1 in the Redis
 documentation. https://redis.io/commands/incr#pattern-rate-limiter-1
 
-TODO:
-- [ ] benhhmark to demonstrate limiting (wrk?)
+This pattern uses a single Redis key for each minute & path
+combination. So minute 4 of the hour will have 4/first_path and
+4/second_path etc.. These keys have a count of requests as their
+value. When a new request comes into the server the middleware first
+builds the key based on the path and the minute of the hour, then
+pulls the value associated with that key. The value is used to check
+that the number of requests isn't above the limit, then the middleware
+either increments the counter and allows the request, or blocks the
+request with a 429 HTTP status code.
 
 Gotchas
 =====
@@ -90,3 +97,9 @@ Future Work
 - Logging, right now it's printing errors and status for each request
   to stdout. This should log in the same manner as the other systems
   it's deployed with.
+- Use set for the first time a key is set then use the atomic
+  increment for future sets. Right now it's done as one uniform action
+  for expediency. Right now there is a race condition that means some
+  requests could go uncounted. If we use increment instead there is
+  still a race condition at the final test, increment, then lock test,
+  but it's a much smaller window.
