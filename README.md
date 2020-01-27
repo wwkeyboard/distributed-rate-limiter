@@ -53,6 +53,14 @@ Development
 
 And you should get back a 429
 
+You can set the request limit of the server by setting the LIMIT env
+var. This defaults to 100, but it's useful for development to set it
+to something much lower. Be careful, if you start two servers with
+different limits the one with the lower limit will block requests
+without incriminating the total limit count. This will cause weirdness
+and in a real production system the limits should come from a
+configuration file instead of the environment.
+
 Deployment
 ========
 
@@ -67,7 +75,6 @@ service if Redis is restarted. The rate limiter will also throw 500s
 while Redis is down instead of passing all traffic unlimited, it
 wouldn't be hard to change this behaviour to fail open instead of
 failing closed.
-
 
 Future Work
 ========

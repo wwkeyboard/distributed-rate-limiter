@@ -17,13 +17,7 @@ type Limiter struct {
 // New limiter configured for a redis running on localhost
 // returns an error if it can't connect to the redis instance
 // TODO pass in the redis client instead of building it here
-func New(limit int) (*Limiter, error) {
-	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // YOLO for now
-		DB:       0,
-	})
-
+func New(limit int, client *redis.Client) (*Limiter, error) {
 	_, err := client.Ping().Result()
 	if err != nil {
 		return nil, err

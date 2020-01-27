@@ -6,7 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
+	redis "github.com/go-redis/redis/v7"
 	"github.com/wwkeyboard/distributed-rate-limiter/limiter"
 )
 
@@ -21,7 +23,23 @@ func main() {
 		port = "8080"
 	}
 
-	rl, err := limiter.New(3)
+	var err error
+	limit := 100
+	envLimit := os.Getenv("LIMIT")
+	if envLimit != "" {
+		limit, err = strconv.Atoi(envLimit)
+		if err != nil {
+			log.Fatalf("Failed to parse requested limit %v", err)
+		}
+	}
+
+	rl, err := limiter.New(
+		limit,
+		redis.NewClient(&redis.Options{
+			Addr:     "localhost:6379",
+			Password: "", // YOLO for now
+			DB:       0,
+		}))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,5 +48,6 @@ func main() {
 	http.HandleFunc("/unlimited", testHandler)
 
 	addr := fmt.Sprintf(":%v", port)
+	fmt.Println("Listening on ", addr)
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
