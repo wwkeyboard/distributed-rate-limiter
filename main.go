@@ -4,24 +4,18 @@ import (
 	"io"
 	"log"
 	"net/http"
-)
 
-func rateLimit(f http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if true == true {
-			http.Error(w, http.StatusText(http.StatusTooManyRequests), http.StatusTooManyRequests)
-			return
-		}
-		f(w, r)
-	}
-}
+	"github.com/wwkeyboard/distributed-rate-limiter/limiter"
+)
 
 func test1(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Hello from test1!\n")
 }
 
 func main() {
-	http.HandleFunc("/test1", rateLimit(test1))
+	rl := limiter.New()
+	http.HandleFunc("/test1", rl.Limit(test1))
+	http.HandleFunc("/unlimited", test1)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
