@@ -1,52 +1,22 @@
-// +build integration
-
 package limiter
 
 import (
 	"fmt"
-	"log"
-	"net/http"
-	"net/http/httptest"
+	"strings"
 	"testing"
+	"time"
 )
 
-/*
- * This test requires redis running locally,
- * scripts/integration-test.sh sets this up and runs the test.
- */
+// This will fail if run on the minute boundery. This should be fixed but may be outside the scope of this project.
+func Test_key(t *testing.T) {
+	minute := time.Now().Minute()
+	slug := "/something"
+	k := key(slug)
 
-func TestLimiter_Limit(t *testing.T) {
-	rl, err := New()
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "Hello, client")
-	})
-	ts := httptest.NewServer(rl.Limit(handler))
-	defer ts.Close()
-
-	// Test the first request isn't limited
-	res, err := http.Get(ts.URL)
-	if err != nil {
-		log.Fatal(err)
+	if !strings.Contains(k, slug) {
+		t.Errorf("key didn't include slug")
 	}
-
-	if res.StatusCode == 429 {
-		log.Fatal("didn't allow the first request")
-	}
-
-	// increment the counter
-	http.Get(ts.URL)
-	http.Get(ts.URL)
-	http.Get(ts.URL)
-	http.Get(ts.URL)
-	http.Get(ts.URL)
-
-	// test the 5th is limited
-	res, err = http.Get(ts.URL)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 429 {
-		log.Fatal("didn't block the 6th request")
+	if !strings.Contains(k, fmt.Sprint(minute)) {
+		t.Errorf("key didn't include minute")
 	}
 }

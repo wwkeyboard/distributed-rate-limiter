@@ -15,7 +15,7 @@ func test1(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	rl, err := limiter.New()
+	rl, err := limiter.New(100)
 	if err != nil {
 		log.Fatal(err)
 	}

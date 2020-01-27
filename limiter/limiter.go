@@ -10,12 +10,12 @@ import (
 
 // Limiter for the rate of requests to the endpoint
 type Limiter struct {
-	count  int
+	limit  int
 	client *redis.Client
 }
 
 // New limiter
-func New() (*Limiter, error) {
+func New(limit int) (*Limiter, error) {
 
 	client := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
@@ -29,7 +29,7 @@ func New() (*Limiter, error) {
 	}
 
 	return &Limiter{
-		count:  0,
+		limit:  0,
 		client: client,
 	}, nil
 }
@@ -38,7 +38,7 @@ func New() (*Limiter, error) {
 func (l *Limiter) Limit(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var expiration time.Duration
-		key := fmt.Sprintf("%v%v", time.Now().Minute(), "/something")
+		key := key("/something")
 
 		count, err := l.client.Get(key).Int()
 		if err == redis.Nil {
@@ -54,7 +54,7 @@ func (l *Limiter) Limit(f http.HandlerFunc) http.HandlerFunc {
 
 		fmt.Printf("count for %v -> %v\n", key, count)
 
-		if count > 5 {
+		if count > l.limit {
 			http.Error(w, http.StatusText(http.StatusTooManyRequests), http.StatusTooManyRequests)
 			return
 		}
@@ -64,8 +64,11 @@ func (l *Limiter) Limit(f http.HandlerFunc) http.HandlerFunc {
 			// log the error but we probably don't need to stop the request from firing
 			fmt.Println(err)
 		}
-		l.count++
 
 		f(w, r)
 	}
+}
+
+func key(slug string) string {
+	return fmt.Sprintf("%v%v", time.Now().Minute(), slug)
 }
