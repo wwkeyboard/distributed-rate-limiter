@@ -1,3 +1,5 @@
+// +build integration
+
 package limiter
 
 import (
@@ -8,8 +10,13 @@ import (
 	"testing"
 )
 
+/*
+ * This test requires redis running locally,
+ * scripts/integration-test.sh sets this up and runs the test.
+ */
+
 func TestLimiter_Limit(t *testing.T) {
-	rl := New()
+	rl, err := New()
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello, client")
 	})

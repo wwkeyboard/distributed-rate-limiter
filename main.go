@@ -13,7 +13,10 @@ func test1(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	rl := limiter.New()
+	rl, err := limiter.New()
+	if err != nil {
+		log.Fatal(err)
+	}
 	http.HandleFunc("/test1", rl.Limit(test1))
 	http.HandleFunc("/unlimited", test1)
 

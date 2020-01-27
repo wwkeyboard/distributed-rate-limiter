@@ -1,17 +1,36 @@
 package limiter
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+
+	redis "github.com/go-redis/redis/v7"
+)
 
 // Limiter for the rate of requests to the endpoint
 type Limiter struct {
-	count int
+	count  int
+	client *redis.Client
 }
 
 // New limiter
-func New() *Limiter {
+func New() (*Limiter, error) {
+
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // YOLO for now
+		DB:       0,
+	})
+
+	pong, err := client.Ping().Result()
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(pong, err)
+
 	return &Limiter{
 		count: 0,
-	}
+	}, nil
 }
 
 // Limit the rate of requests to this service
