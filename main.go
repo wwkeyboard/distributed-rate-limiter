@@ -10,18 +10,25 @@ import (
 	"github.com/wwkeyboard/distributed-rate-limiter/limiter"
 )
 
-func test1(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "Hello from test1!\n")
+func testHandler(w http.ResponseWriter, r *http.Request) {
+	msg := fmt.Sprintf("Hello from %v\n", r.URL.Path)
+	io.WriteString(w, msg)
 }
 
 func main() {
-	rl, err := limiter.New(100)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	rl, err := limiter.New(3)
 	if err != nil {
 		log.Fatal(err)
 	}
-	http.HandleFunc("/test1", rl.Limit(test1))
-	http.HandleFunc("/unlimited", test1)
+	http.HandleFunc("/test1", rl.Limit(testHandler))
+	http.HandleFunc("/test2", rl.Limit(testHandler))
+	http.HandleFunc("/unlimited", testHandler)
 
-	addr := fmt.Sprintf(":%v", os.Getenv("PORT"))
+	addr := fmt.Sprintf(":%v", port)
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
