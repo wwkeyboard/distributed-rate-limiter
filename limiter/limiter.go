@@ -38,7 +38,7 @@ func New(limit int) (*Limiter, error) {
 func (l *Limiter) Limit(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var expiration time.Duration
-		key := key("/something")
+		key := key(r.URL.Path)
 
 		count, err := l.client.Get(key).Int()
 		if err == redis.Nil {
