@@ -29,7 +29,7 @@ func New(limit int) (*Limiter, error) {
 	}
 
 	return &Limiter{
-		limit:  0,
+		limit:  limit,
 		client: client,
 	}, nil
 }
