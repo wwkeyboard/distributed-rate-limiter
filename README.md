@@ -20,9 +20,36 @@ TODO:
 - [ ] middleware
 - [ ] benhhmark to demonstrate limiting (wrk?)
 
-Development Requirments
-=======================
+Development
+=========
+
+## Requirements
 
 1. docker,
 2. golang, tested with 1.13
 3. redis-cli, if you want to poke Redis directly
+
+## Running the Server
+
+1. start Redis
+
+    scripts/start-redis-server.sh
+
+2. start the server
+
+    PORT=8080 go run main.go
+
+3. start another server on another port
+
+    PORT=8081 go run main.go
+
+4. test!
+
+    http :8080/test1
+    http :8081/test1
+    http :8080/test1
+    http :8081/test1
+    http :8080/test1
+    http :8081/test1
+
+And you should see a 429 be returned!

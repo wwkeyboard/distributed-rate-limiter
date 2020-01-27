@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/wwkeyboard/distributed-rate-limiter/limiter"
 )
@@ -20,5 +22,6 @@ func main() {
 	http.HandleFunc("/test1", rl.Limit(test1))
 	http.HandleFunc("/unlimited", test1)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	addr := fmt.Sprintf(":%v", os.Getenv("PORT"))
+	log.Fatal(http.ListenAndServe(addr, nil))
 }
