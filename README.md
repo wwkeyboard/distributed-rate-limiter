@@ -58,3 +58,31 @@ Development
     http :8081/test1
 
 And you should get back a 429
+
+Deployment
+========
+
+This requires Redis to be running for the rate limiting to
+work. Because this is a critical part of the infrastructure it'll need
+to be monitored and run like a production service.
+
+There is no state in Redis older than a minute, so it doesn't need
+backups. The biggest risk in restarting the service is that all of the
+counts are lost, so it would be possible for a spike in load to the
+service if Redis is restarted. The rate limiter will also throw 500s
+while Redis is down instead of passing all traffic unlimited, it
+wouldn't be hard to change this behaviour to fail open instead of
+failing closed.
+
+
+Future Work
+========
+
+- Configuration, right now all endpoints have the same cap of 100
+  requests.
+- Metrics, a process could scrape all of the keys in Redis and present
+  them to the metrics system(or operate as a Prometheus scrape). This
+  would allow the construction of a graph of what endpoints have the
+  most traffic. It would also allow a rough estimate of the load on
+  each endpoint. This estimate could be made more accurate by
+  incriminating the counter past the limit.
