@@ -9,13 +9,7 @@ This is coordinated through Redis. The first version uses the rate
 limiter pattern #1 in the Redis
 documentation. https://redis.io/commands/incr#pattern-rate-limiter-1
 
-Things to consider:
-- [ ] configuration
-- [ ] metrics/status
-- [ ] deployment/operation of Redis + the service
-
 TODO:
-- [ ] pull path from request
 - [ ] benhhmark to demonstrate limiting (wrk?)
 
 Gotchas
