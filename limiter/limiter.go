@@ -14,9 +14,10 @@ type Limiter struct {
 	client *redis.Client
 }
 
-// New limiter
+// New limiter configured for a redis running on localhost
+// returns an error if it can't connect to the redis instance
+// TODO pass in the redis client instead of building it here
 func New(limit int) (*Limiter, error) {
-
 	client := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // YOLO for now
@@ -46,12 +47,13 @@ func (l *Limiter) Limit(f http.HandlerFunc) http.HandlerFunc {
 			count = 0
 			expiration = 1 * time.Minute
 		} else if err != nil {
-			fmt.Println("here")
 			fmt.Println(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 
+		// TODO replace this with a logging system, it's printing to stdout for
+		// demonstration/debugging
 		fmt.Printf("count for %v -> %v\n", key, count)
 
 		if count > l.limit {
@@ -69,6 +71,7 @@ func (l *Limiter) Limit(f http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+// key is the key of the counting bucket for this endpoint for this minute
 func key(slug string) string {
 	return fmt.Sprintf("%v%v", time.Now().Minute(), slug)
 }

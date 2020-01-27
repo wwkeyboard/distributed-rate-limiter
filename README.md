@@ -80,3 +80,6 @@ Future Work
   most traffic. It would also allow a rough estimate of the load on
   each endpoint. This estimate could be made more accurate by
   incriminating the counter past the limit.
+- Logging, right now it's printing errors and status for each request
+  to stdout. This should log in the same manner as the other systems
+  it's deployed with.
