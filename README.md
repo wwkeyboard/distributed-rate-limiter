@@ -25,3 +25,4 @@ Development Requirments
 
 1. docker,
 2. golang, tested with 1.13
+3. redis-cli, if you want to poke Redis directly
